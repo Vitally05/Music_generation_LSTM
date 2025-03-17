@@ -1,5 +1,7 @@
-# Env virtuels et configurations
-
+# Virtual env and configurations
 .venv
 .idea
 __pycache__
+
+#Keys and tokens
+token_access.py
