@@ -1,0 +1,5 @@
+# Env virtuels et configurations
+
+.venv
+.idea
+__pycache__
