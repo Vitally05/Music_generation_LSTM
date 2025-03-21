@@ -1,3 +1,7 @@
 jupyter
 ipykernel
 datasets
+music21
+pathlib
+numpy
+torch
