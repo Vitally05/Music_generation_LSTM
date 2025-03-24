@@ -1,0 +1,6 @@
+music21
+numpy
+keras
+jupyter
+ipykernel
+tensorflow
