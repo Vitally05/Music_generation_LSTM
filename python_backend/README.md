@@ -12,10 +12,7 @@ The backend needs **python 3.12.** to run. Download it on your own. \
 To make clean project, we will use a virtual environment.
 
 In **another** terminal, use the following commands to start the backend :
-- Go to the backend folder
-    ```bash
-    cd .\python_backend\
-    ```
+
 - Create a virtual environment
     ```bash
     python -m venv .venv
@@ -26,7 +23,7 @@ In **another** terminal, use the following commands to start the backend :
     ```
 - Install the dependencies
     ```bash
-    pip install -r requirements.txt
+    pip install -r python_backend/requirements.txt
     ```
 
 # Examples 
