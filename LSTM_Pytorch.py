@@ -159,7 +159,7 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    path = ".\\raw_datasets\\mozart"
+    path = ".\\datasets\\classical_music"
     notes = get_notes(path)
     n_vocab = len(set(notes))
 
@@ -179,7 +179,7 @@ if __name__ == '__main__':
     model = MusicLSTM(input_size, hidden_size, output_size)
 
     # Train model
-    train_music_model(model, dataloader, epochs=3, device=device)
+    train_music_model(model, dataloader, epochs=50, device=device)
 
     generated_music = generate_music(model, device, notes, note_to_int, int_to_note)
     output_name = get_output_name("generated_music")
