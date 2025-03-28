@@ -15,25 +15,29 @@ class MusicLSTM(nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
 
+        # We use embeddings to learn better : we are searching for relations between note
         self.embedding = nn.Embedding(input_size, hidden_size)
 
+        # LSTM and fully connected layers
         self.lstm = nn.LSTM(hidden_size, hidden_size, num_layers, batch_first=True, dropout=dropout)
         self.fc = nn.Linear(hidden_size, output_size)
 
-    def forward(self, x, hidden=None):
+    def forward(self, x):
 
-        x = self.embedding(x)  # [batch_size, sequence_length, hidden_size]
+        x = self.embedding(x)
 
         # Initialize hidden state
         h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
 
         # LSTM forward pass
-        out, _ = self.lstm(x, (h0, c0))
+        out, _ = self.lstm(x, (h0, c0))  #[batch_size, sequence_length, hidden_size]
 
-        out = out[:, -1, :]  # Get output from the last time step
-        out = self.fc(out)  # Apply the fully connected layer
-        return out  # Return predictions and hidden states for the next iteration
+        out = out[:, -1, :]  # We keep the last sequence
+
+        out = self.fc(out)  # Apply the fully connected layer to predict the next note based on the sequence
+
+        return out
 
 def train_music_model(model, train_loader, device, epochs):
     model.to(device)
@@ -61,41 +65,39 @@ def train_music_model(model, train_loader, device, epochs):
 
         print(f'Epoch {epoch+1}, Average Loss: {total_loss/len(train_loader):.4f}')
 
-    torch.save(model.state_dict(), f"models\\epoch_{epoch + 1}.pt")
-    print(f"model saved at epoch {epoch + 1}")
+    torch.save(model.state_dict(), f"models\\epoch_{epochs + 1}.pt")
+    print(f"model saved at epoch {epochs + 1}")
 
 
 def generate_music(model, device, notes, note_to_int, int_to_note, sequence_length=100, generate_length=100):
-    # Mettre le modèle en mode évaluation
+
     model.eval()
 
-    # Sélectionner une séquence de départ aléatoire
+    # Initial sequence is picked at random point in the notes
     start_index = np.random.randint(0, len(notes) - sequence_length)
     pattern = notes[start_index:start_index + sequence_length]
 
-    # Convertir la séquence de départ en indices
+    # It's the beggining of our generated music
     generated_notes = list(pattern)
 
-    # Convertir en tenseur
     with torch.no_grad():
         for _ in range(generate_length):
-            # Convertir le pattern en tenseur
+            # Context to tenseur and send to device :
             pattern_indices = torch.tensor([note_to_int[note] for note in pattern],
                                            dtype=torch.long).unsqueeze(0).to(device)
 
-            # Obtenir la prédiction
+            # Get the prediction from the model
             prediction = model(pattern_indices)
 
-            # Obtenir l'index de la note prédite
+            # Get the index of the note with the highest probability from the prediction
             predicted_index = torch.argmax(prediction, dim=1).item()
 
-            # Convertir l'index en note
+            # Get the associated note
             predicted_note = int_to_note[predicted_index]
 
-            # Ajouter la note générée
             generated_notes.append(predicted_note)
 
-            # Mettre à jour le pattern (faire glisser la fenêtre)
+            # Update the pattern with the new note
             pattern = pattern[1:] + [predicted_note]
 
     return generated_notes
@@ -160,6 +162,7 @@ if __name__ == '__main__':
     print(f"Using device: {device}")
 
     path = ".\\datasets\\classical_music"
+    #path = ".\\raw_datasets\\mozart"
     notes = get_notes(path)
     n_vocab = len(set(notes))
 
@@ -170,16 +173,19 @@ if __name__ == '__main__':
     dataset = torch.utils.data.TensorDataset(network_input, network_output)
     dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
 
-    # Model parameters
+    '''# Model parameters
     input_size = n_vocab
     hidden_size = 256
     output_size = n_vocab
 
     # Initialize model
     model = MusicLSTM(input_size, hidden_size, output_size)
-
     # Train model
-    train_music_model(model, dataloader, epochs=50, device=device)
+    train_music_model(model, dataloader, epochs=50, device=device)'''
+
+    model = MusicLSTM(input_size=1408, hidden_size=256, output_size=1408).to(device)
+    model.load_state_dict(torch.load("models/epoch_26.pt"))
+
 
     generated_music = generate_music(model, device, notes, note_to_int, int_to_note)
     output_name = get_output_name("generated_music")
