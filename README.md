@@ -14,3 +14,6 @@ Contraintes actuelles des données en entrée (sinon le modèle a moins de chanc
 
 - Un seul instrument de musique par dataset (ne gère pas les orchestres etc.)
 - Dataset avec un style homogène
+
+
+Pour faire tourner Pytorch sur le GPU : pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118

@@ -5,3 +5,6 @@ __pycache__
 
 #Keys and tokens
 token_access.py
+
+#Data
+*datasets

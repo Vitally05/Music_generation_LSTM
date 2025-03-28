@@ -1,9 +1,26 @@
 from music21 import converter, note, chord
 from pathlib import Path
 import numpy as np
+import os
+import shutil
 
 import torch
 import torch.nn.functional as F
+
+def extract_sub_folders(input_path, output_path):
+    """
+    Copies MIDI files from a sub folder and save them to a new folder. Useful for dataset https://www.kaggle.com/datasets/soumikrakshit/classical-music-midi
+    :param input_path: path of the folder containing the MIDI files
+    :param output_path: chosen path to save the extracted MIDI files
+    """
+    os.makedirs(output_path, exist_ok=True)
+    for sub_folder in os.listdir(input_path):
+        source_path = os.path.join(input_path, sub_folder)
+        midi_files = os.listdir(source_path)
+        for midi_file in midi_files:
+            destination_path = os.path.join(output_path, midi_file)
+            shutil.copyfile(os.path.join(source_path, midi_file), destination_path)
+            #print(f"Fichier {midi_file} -> {destination_path}")
 
 
 def get_notes(midi_folder_path, unique=False):
@@ -54,37 +71,35 @@ def prepare_sequences(notes, n_vocab, sequence_length=100):
     """
 
     # get all pitch names
-    pitchnames = sorted(set(item for item in notes))
+    pitchnames = sorted(set(notes))
 
     # create a dictionary to map pitches to integers
     note_to_int = {note: number for number, note in enumerate(pitchnames)}
+    int_to_note = {number: note for note, number in note_to_int.items()}
 
     network_input = []
     network_output = []
 
     # create input sequences and the corresponding outputs
-    for i in range(0, len(notes) - sequence_length, 1): # !! important
+    for i in range(0, len(notes) - sequence_length, 1):
         sequence_in = notes[i:i + sequence_length]
         sequence_out = notes[i + sequence_length]
         network_input.append([note_to_int[char] for char in sequence_in])
         network_output.append(note_to_int[sequence_out])
 
-    n_patterns = len(network_input)
-
-    # reshape the input into a format compatible with LSTM layers
-    network_input = np.reshape(network_input, (n_patterns, sequence_length, 1))
-    # normalize input for better stability
-    network_input = network_input / float(n_vocab)
-
-    # convert network_output to a PyTorch tensor and apply one-hot encoding
+    # Convert to PyTorch tensors with correct types
+    network_input = torch.tensor(network_input, dtype=torch.long)
     network_output = torch.tensor(network_output, dtype=torch.long)
-    network_output = F.one_hot(network_output, num_classes=n_vocab).float()
 
-    return torch.tensor(network_input, dtype=torch.float32), network_output
+    return network_input, network_output, note_to_int, int_to_note
 
 
 if __name__ == '__main__':
-    path = "datasets/midi_songs_FF_skuldur" # https://github.com/Skuldur/Classical-Piano-Composer/tree/master/midi_songs
+    source = ".\\raw_datasets\\"            # https://www.kaggle.com/datasets/soumikrakshit/classical-music-midi
+    path = ".\\datasets\\classical_music"
+    extract_sub_folders(source, path)
+
+    #path = "datasets/midi_songs_FF_skuldur" # https://github.com/Skuldur/Classical-Piano-Composer/tree/master/midi_songs
     notes = get_notes(path)
     n_vocab = len(set(notes))
     network_input, network_output = prepare_sequences(notes, n_vocab) # X, y
@@ -92,3 +107,5 @@ if __name__ == '__main__':
     print(f"network_input.shape = {network_input.shape} -> network_output.shape = {network_output.shape}")
     #print(f"{network_input}")
     #print(f"{network_output}")
+
+
