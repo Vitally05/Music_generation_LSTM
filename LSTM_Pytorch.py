@@ -173,18 +173,21 @@ if __name__ == '__main__':
     dataset = torch.utils.data.TensorDataset(network_input, network_output)
     dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
 
-    '''# Model parameters
+    # Model parameters
     input_size = n_vocab
     hidden_size = 256
     output_size = n_vocab
 
     # Initialize model
     model = MusicLSTM(input_size, hidden_size, output_size)
-    # Train model
-    train_music_model(model, dataloader, epochs=50, device=device)'''
 
-    model = MusicLSTM(input_size=1408, hidden_size=256, output_size=1408).to(device)
-    model.load_state_dict(torch.load("models/epoch_26.pt"))
+    # Train model
+    #train_music_model(model, dataloader, epochs=50, device=device)
+
+    # OR
+    # Load model
+    model.load_state_dict(torch.load("models/epoch_50.pt", map_location=device))
+    model.to(device)
 
 
     generated_music = generate_music(model, device, notes, note_to_int, int_to_note)
