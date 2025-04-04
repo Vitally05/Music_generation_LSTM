@@ -7,8 +7,8 @@ from torch.utils.data import Dataset, DataLoader
 from data_preparation import extract_sub_folders, get_notes, prepare_sequences
 
 SOURCE = ".\\raw_datasets\\"            # https://www.kaggle.com/datasets/soumikrakshit/classical-music-midi
-PATH = ".\\datasets\\classical_music"
-COMPOSER = "bach" # "all" if you want to train the model on all composers
+PATH = ".\\datasets\\classical_music"   # No sub folder in this folder, all MIDI files are in the same folder
+COMPOSER = ["beeth"] # ["all"] if you want to train the model on all composers
 
 class MusicLSTM(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_layers=2, dropout=0.2):
@@ -65,12 +65,12 @@ def train_music_model(model, train_loader, device, epochs, composer=""):
 
         if epoch % 5 == 0:
             torch.save(model.state_dict(), f"{saving_path}\\epoch_{epoch + 1}.pt")
-            print(f"model saved at epoch {epoch + 1}")
+            print(f"model {saving_path} saved at epoch {epoch + 1}")
 
         print(f'Epoch {epoch+1}, Average Loss: {total_loss/len(train_loader):.4f}')
 
     torch.save(model.state_dict(), f"{saving_path}\\epoch_{epochs + 1}.pt")
-    print(f"model saved at epoch {epochs + 1}")
+    print(f"model {saving_path} saved at epoch {epochs + 1}")
 
 
 def generate_music(model, device, notes, note_to_int, int_to_note, sequence_length=100, generate_length=100):
@@ -78,7 +78,8 @@ def generate_music(model, device, notes, note_to_int, int_to_note, sequence_leng
     model.eval()
 
     # Initial sequence is picked at random point in the notes
-    start_index = np.random.randint(0, len(notes) - sequence_length)
+    #start_index = np.random.randint(0, len(notes) - sequence_length)
+    start_index = 0
     pattern = notes[start_index:start_index + sequence_length]
 
     # It's the beggining of our generated music
@@ -118,11 +119,11 @@ def save_generated_music_to_midi(generated_notes, output_file='generated_music.m
 
                 # Set duration based on suffix
                 if '_short' in note_str:
-                    c.duration.quarterLength = 0.5
+                    c.duration.quarterLength = 0.4
                 elif '_medium' in note_str:
-                    c.duration.quarterLength = 1.0
+                    c.duration.quarterLength = 0.8
                 else:
-                    c.duration.quarterLength = 2.0
+                    c.duration.quarterLength = 0.8
 
                 stream.append(c)
             else:  # It's a single note
@@ -134,11 +135,11 @@ def save_generated_music_to_midi(generated_notes, output_file='generated_music.m
 
                 # Set duration based on suffix
                 if '_short' in note_str:
-                    n.duration.quarterLength = 0.5
+                    n.duration.quarterLength = 0.4
                 elif '_medium' in note_str:
-                    n.duration.quarterLength = 1.0
+                    n.duration.quarterLength = 0.8
                 else:
-                    n.duration.quarterLength = 2.0
+                    n.duration.quarterLength = 0.8
 
                 stream.append(n)
         except Exception as e:
@@ -193,23 +194,25 @@ def music_generation(model, device, notes, note_to_int, int_to_note, number_file
         generated_music = generate_music(model, device, notes, note_to_int, int_to_note, sequence_length, generate_length)
 
         # Save generated music to MIDI file
-        output_name = get_output_name("generated_music\\"+COMPOSER)
+        output_name = get_output_name("generated_music\\"+ composer)
         save_generated_music_to_midi(generated_music, output_name)
 
 if __name__ == '__main__':
-    extract_sub_folders(SOURCE, PATH)
+    if SOURCE != "":
+        extract_sub_folders(SOURCE, PATH)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    if COMPOSER == "all" or COMPOSER == "All":
-        path = PATH
-    else :
-        path = ".\\raw_datasets\\" + COMPOSER
+    for composer in COMPOSER:
+        if composer == "all" or composer == "All":
+            path = PATH
+        else :
+            path = ".\\raw_datasets\\" + composer
 
-    #load_model = "models\\albeniz\\epoch_51.pt" # "" if you want to train the model
-    load_model = ""
+        load_model = "models\\beeth\\epoch_51.pt" # "" if you want to train the model
+        #load_model = ""
 
-    model, notes, note_to_int, int_to_note = training_pipeline(device, path, epochs=20, load_model=load_model, composer=COMPOSER)
+        model, notes, note_to_int, int_to_note = training_pipeline(device, path, epochs=50, load_model=load_model, composer=composer)
 
-    music_generation(model, device, notes, note_to_int, int_to_note, number_files=5)
+        music_generation(model, device, notes, note_to_int, int_to_note, number_files=1)
