@@ -8,6 +8,7 @@ from data_preparation import extract_sub_folders, get_notes, prepare_sequences
 
 SOURCE = ".\\raw_datasets\\"            # https://www.kaggle.com/datasets/soumikrakshit/classical-music-midi
 PATH = ".\\datasets\\classical_music"
+COMPOSER = "bach" # "all" if you want to train the model on all composers
 
 class MusicLSTM(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_layers=2, dropout=0.2):
@@ -39,10 +40,13 @@ class MusicLSTM(nn.Module):
 
         return out
 
-def train_music_model(model, train_loader, device, epochs):
+def train_music_model(model, train_loader, device, epochs, composer=""):
     model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     criterion = nn.CrossEntropyLoss()
+    saving_path = f"models\\{composer}"
+    if not os.path.exists(saving_path):
+        os.makedirs(saving_path)
 
     for epoch in range(epochs):
         model.train()
@@ -60,12 +64,12 @@ def train_music_model(model, train_loader, device, epochs):
             total_loss += loss.item()
 
         if epoch % 5 == 0:
-            torch.save(model.state_dict(), f"models\\epoch_{epoch + 1}.pt")
+            torch.save(model.state_dict(), f"{saving_path}\\epoch_{epoch + 1}.pt")
             print(f"model saved at epoch {epoch + 1}")
 
         print(f'Epoch {epoch+1}, Average Loss: {total_loss/len(train_loader):.4f}')
 
-    torch.save(model.state_dict(), f"models\\epoch_{epochs + 1}.pt")
+    torch.save(model.state_dict(), f"{saving_path}\\epoch_{epochs + 1}.pt")
     print(f"model saved at epoch {epochs + 1}")
 
 
@@ -155,14 +159,8 @@ def get_output_name(folder_name):
     final_name = f"{folder_name}\\music{i}.mid"
     return final_name
 
-if __name__ == '__main__':
-    extract_sub_folders(SOURCE, PATH)
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
-
-    path = ".\\datasets\\classical_music"
-    #path = ".\\raw_datasets\\mozart"
+def training_pipeline(device, path, epochs=50, load_model="", composer=""):
+    # Load notes
     notes = get_notes(path)
     n_vocab = len(set(notes))
 
@@ -179,17 +177,39 @@ if __name__ == '__main__':
     output_size = n_vocab
 
     # Initialize model
-    model = MusicLSTM(input_size, hidden_size, output_size)
+    model = MusicLSTM(input_size, hidden_size, output_size).to(device)
 
-    # Train model
-    #train_music_model(model, dataloader, epochs=50, device=device)
+    if load_model == "":
+        train_music_model(model, dataloader, epochs=epochs, device=device, composer=composer)
+    else :
+        model.load_state_dict(torch.load(load_model, map_location=device))
 
-    # OR
-    # Load model
-    model.load_state_dict(torch.load("models/epoch_50.pt", map_location=device))
-    model.to(device)
+    return model, notes, note_to_int, int_to_note
 
+def music_generation(model, device, notes, note_to_int, int_to_note, number_files=1, sequence_length=100, generate_length=100):
 
-    generated_music = generate_music(model, device, notes, note_to_int, int_to_note)
-    output_name = get_output_name("generated_music")
-    save_generated_music_to_midi(generated_music, output_name)
+    for i in range(number_files):
+        # Generate music
+        generated_music = generate_music(model, device, notes, note_to_int, int_to_note, sequence_length, generate_length)
+
+        # Save generated music to MIDI file
+        output_name = get_output_name("generated_music\\"+COMPOSER)
+        save_generated_music_to_midi(generated_music, output_name)
+
+if __name__ == '__main__':
+    extract_sub_folders(SOURCE, PATH)
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
+
+    if COMPOSER == "all" or COMPOSER == "All":
+        path = PATH
+    else :
+        path = ".\\raw_datasets\\" + COMPOSER
+
+    #load_model = "models\\albeniz\\epoch_51.pt" # "" if you want to train the model
+    load_model = ""
+
+    model, notes, note_to_int, int_to_note = training_pipeline(device, path, epochs=20, load_model=load_model, composer=COMPOSER)
+
+    music_generation(model, device, notes, note_to_int, int_to_note, number_files=5)
