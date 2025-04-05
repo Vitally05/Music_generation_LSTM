@@ -24,7 +24,8 @@ def convert_midi_to_mp3(midi_file_path,
 
     note: !!!!
     this function requires the installation of:
-    - FluidSynth: to be installed separately (https://github.com/FluidSynth/fluidsynth/releases) + add to PATH (may require SDL3.dll : https://www.dllme.com/dll/files/sdl3, put it in the bin directory of fluidsynth)
+    - FluidSynth: to be installed separately (https://github.com/FluidSynth/fluidsynth/releases) + add to PATH
+                (may require SDL3.dll : https://www.dllme.com/dll/files/sdl3, put it in the bin directory of fluidsynth)
     - ffmpeg: to be installed separately (https://www.ffmpeg.org/) + add to PATH
     requires IDE restart after adding to PATH. same for cmd. paste access path for absolute_fluidsynth_path and absolute_ffmpeg_path
         to check if installed correctly, in command prompt type:
@@ -35,7 +36,8 @@ def convert_midi_to_mp3(midi_file_path,
     """
 
     AudioSegment.converter = os.path.join(absolute_ffmpeg_path,
-                                          "ffmpeg.exe")  # force path of ffmpeg (the program fails to find it otherwise, even if properly added to PATH)
+                                          "ffmpeg.exe")  # force path of ffmpeg (the program fails to find it
+    # otherwise, even if properly added to PATH)
     AudioSegment.ffprobe = os.path.join(absolute_ffmpeg_path, "ffprobe.exe")  # same for ffprobe
 
     os.environ["PATH"] += os.pathsep + absolute_fluidsynth_path  # path for fluidsynth bin folder
@@ -53,7 +55,8 @@ def convert_midi_to_mp3(midi_file_path,
     try:
 
         fs = FluidSynth(
-            sound_font=soundfont_path) if soundfont_path else FluidSynth()  # initialize FluidSynth with the specified SoundFont or the default one (not working properly, specify one)
+            sound_font=soundfont_path) if soundfont_path else FluidSynth()  # initialize FluidSynth with the
+                                            # specified SoundFont or the default one (not working properly, specify one)
 
         fs.midi_to_audio(midi_file_path, wav_temp_path)  # convert MIDI to wav
 
