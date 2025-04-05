@@ -5,3 +5,5 @@ music21
 pathlib
 numpy
 torch
+midi2audio
+pydub
