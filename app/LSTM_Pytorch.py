@@ -7,10 +7,6 @@ from torch.utils.data import Dataset, DataLoader
 from data_preparation import extract_sub_folders, get_notes, prepare_sequences
 from utils import convert_midi_to_mp3
 
-SOURCE = ".\\static\\raw_datasets\\"            # https://www.kaggle.com/datasets/soumikrakshit/classical-music-midi
-PATH = ".\\static\\datasets\\classical_music"   # No sub folder in this folder, all MIDI files are in the same folder
-COMPOSER = ["beeth"] # ["all"] if you want to train the model on all composers
-
 class MusicLSTM(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_layers=2, dropout=0.2):
         super(MusicLSTM, self).__init__()
@@ -203,14 +199,18 @@ def vider_dossier(dossier):
             os.remove(chemin_complet)
 
 def generate_mp3_music(composer = "beeth", generate_length=100):
+    # Generate dataset frolder from the raw dataset folder
     if SOURCE != "":
         extract_sub_folders(SOURCE, PATH)
 
-    # clear generated/mid and generated/mp3 folders
+    # clear generated folder
     vider_dossier("static/generated")
 
+    # Check if GPU is available and set device accordingly
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
+
+    ############### PATHS ###############
 
     path = SOURCE + composer
 
