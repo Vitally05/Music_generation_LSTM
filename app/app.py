@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, send_from_directory
+from flask import Flask, render_template, request, send_from_directory, redirect, url_for
 from LSTM_Pytorch import generate_music, save_generated_music_to_midi
 import subprocess
 import os
+from LSTM_Pytorch import generate_mp3_music
 
 app = Flask(__name__)
 
@@ -17,10 +18,15 @@ def generate():
     artist = request.form['artist']
     duration = request.form['duration']
 
-    # Appelle inference.py avec les arguments
-    subprocess.run(['python', 'inference.py', artist, duration])
+    artist = str(artist)
+    duration = int(duration)
 
-    return send_from_directory(OUTPUT_FOLDER, OUTPUT_FILE, as_attachment=True)
+    print(f"Artist: {artist}, Duration: {duration}")
+
+    # Appelle la fonction de génération de musique
+    generate_mp3_music(composer = artist, generate_length=duration)
+
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)

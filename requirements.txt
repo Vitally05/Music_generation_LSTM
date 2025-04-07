@@ -8,5 +8,3 @@ torch
 midi2audio
 pydub
 flask
-pygame
-music21

@@ -10,25 +10,23 @@
     <form action="/generate" method="post">
         <label for="artist">Artiste :</label>
         <select name="artist" id="artist">
-            <option value="Drake">Drake</option>
-            <option value="Beyonce">Beyoncé</option>
-            <option value="Eminem">Eminem</option>
+            <option value="beeth">Beeth</option>
+            <option value="albeniz">Albeniz</option>
+            <option value="debussy">Debussy</option>
         </select><br>
 
-        <label for="duration">Durée (en secondes) :</label>
+        <label for="duration">Durée (en notes) :</label>
         <input type="number" id="duration" name="duration" min="5" max="300" required><br>
 
         <input type="submit" value="Générer">
     </form>
 
-    {% if mp3_exists %}
-        <h2>Voici ta génération :</h2>
-        <audio controls>
-            <source src="{{ url_for('static', filename='generated/mp3/result.mp3') }}" type="audio/mpeg">
-            Ton navigateur ne supporte pas l'audio HTML.
-        </audio>
-        <br><br>
-        <a href="{{ url_for('static', filename='generated/result.mp3') }}" download>Télécharger le fichier MP3</a>
-    {% endif %}
+    <h2>Voici ta génération :</h2>
+    <audio controls>
+        <source src="{{ url_for('static', filename='generated/music1.mp3') }}" type="audio/mpeg">
+        Ton navigateur ne supporte pas l'audio HTML.
+    </audio>
+    <br><br>
+    <a href="{{ url_for('static', filename='generated/music1.mp3') }}" download>Télécharger le fichier MP3</a>
 </body>
 </html>

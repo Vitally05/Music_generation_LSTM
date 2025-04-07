@@ -5,10 +5,7 @@ import torch.nn as nn
 from music21 import converter, instrument, note, chord
 from torch.utils.data import Dataset, DataLoader
 from data_preparation import extract_sub_folders, get_notes, prepare_sequences
-from pydub import AudioSegment
-import pygame.midi
-import time
-import os
+from utils import convert_midi_to_mp3
 
 SOURCE = ".\\static\\raw_datasets\\"            # https://www.kaggle.com/datasets/soumikrakshit/classical-music-midi
 PATH = ".\\static\\datasets\\classical_music"   # No sub folder in this folder, all MIDI files are in the same folder
@@ -195,36 +192,22 @@ def music_generation(model, device, notes, note_to_int, int_to_note, number_file
         # Generate music
         generated_music = generate_music(model, device, notes, note_to_int, int_to_note, sequence_length, generate_length)
 
-        # remove all files in the folder
-        for file in os.listdir(".\\static\\generated\\midi"):
-            if file.endswith('.mid'):
-                os.remove(os.path.join(".\\static\\generated\\midi", file))
-
         # Save generated music to MIDI file
-        output_name = get_output_name(".\\static\\generated\\midi\\"+ composer)
+        output_name = get_output_name(".\\static\\generated")
         save_generated_music_to_midi(generated_music, output_name)
 
-def midi_to_wav(midi_path, wav_path):
-    pygame.midi.init()
-    player = pygame.midi.Output(0)
-    midi = pygame.midi.Input(pygame.midi.get_default_input_id())
-
-    # Utilise timidity pour convertir MIDI → WAV
-    os.system(f"timidity {midi_path} -Ow -o {wav_path}")
-
-def wav_to_mp3(wav_path, mp3_path):
-    audio = AudioSegment.from_wav(wav_path)
-    audio.export(mp3_path, format="mp3")
-
-def convert_midi_to_mp3(midi_path, mp3_path):
-    temp_wav = "temp_output.wav"
-    midi_to_wav(midi_path, temp_wav)
-    wav_to_mp3(temp_wav, mp3_path)
-    os.remove(temp_wav)
+def vider_dossier(dossier):
+    for fichier in os.listdir(dossier):
+        chemin_complet = os.path.join(dossier, fichier)
+        if os.path.isfile(chemin_complet):
+            os.remove(chemin_complet)
 
 def generate_mp3_music(composer = "beeth", generate_length=100):
     if SOURCE != "":
         extract_sub_folders(SOURCE, PATH)
+
+    # clear generated/mid and generated/mp3 folders
+    vider_dossier("static/generated")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
@@ -238,8 +221,16 @@ def generate_mp3_music(composer = "beeth", generate_length=100):
 
     music_generation(model, device, notes, note_to_int, int_to_note, number_files=1, generate_length=generate_length, composer=composer)
 
-    # Exemple d'utilisation :
-    convert_midi_to_mp3(".\\static\\generated\\midi\\"+ composer + "music1.mid", ".\\static\\generated\\mp3\\result.mp3")
+    midi_file = ".\\static\\generated\\music1.mid" # CHANGE
+    soundfont_path = "./static/sound_fonts/FluidR3_GM.sf2"  # piano
+    absolute_fluidsynth_path = r"C:\Users\vigou\Documents\GitHub\Music_generation_LSTM\app\static\FluidSynth\fluidsynth-2.4.4-win10-x64\bin"  # CHANGE
+    absolute_ffmpeg_path = r"C:\ffmpeg" 
+
+    convert_midi_to_mp3(midi_file,
+                        soundfont_path=soundfont_path,
+                        absolute_fluidsynth_path=absolute_fluidsynth_path,
+                        absolute_ffmpeg_path=absolute_ffmpeg_path,
+                        mp3_file_path=None)
 
 if __name__ == '__main__':
     generate_mp3_music("debussy", generate_length=100) 

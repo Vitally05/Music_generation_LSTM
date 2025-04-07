@@ -86,9 +86,6 @@ if __name__ == "__main__":
     absolute_fluidsynth_path = r"C:\Users\vigou\Documents\GitHub\Music_generation_LSTM\app\static\FluidSynth\fluidsynth-2.4.4-win10-x64\bin"  # CHANGE
     absolute_ffmpeg_path = r"C:\ffmpeg" 
 
-    print("absolute_ffmpeg_path:", absolute_ffmpeg_path)
-    print("absolute_fluidsynth_path:", absolute_fluidsynth_path)
-
     convert_midi_to_mp3(midi_file,
                         soundfont_path=soundfont_path,
                         absolute_fluidsynth_path=absolute_fluidsynth_path,
