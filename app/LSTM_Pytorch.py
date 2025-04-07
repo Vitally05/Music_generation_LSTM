@@ -5,9 +5,13 @@ import torch.nn as nn
 from music21 import converter, instrument, note, chord
 from torch.utils.data import Dataset, DataLoader
 from data_preparation import extract_sub_folders, get_notes, prepare_sequences
+from pydub import AudioSegment
+import pygame.midi
+import time
+import os
 
-SOURCE = ".\\raw_datasets\\"            # https://www.kaggle.com/datasets/soumikrakshit/classical-music-midi
-PATH = ".\\datasets\\classical_music"   # No sub folder in this folder, all MIDI files are in the same folder
+SOURCE = ".\\static\\raw_datasets\\"            # https://www.kaggle.com/datasets/soumikrakshit/classical-music-midi
+PATH = ".\\static\\datasets\\classical_music"   # No sub folder in this folder, all MIDI files are in the same folder
 COMPOSER = ["beeth"] # ["all"] if you want to train the model on all composers
 
 class MusicLSTM(nn.Module):
@@ -160,12 +164,10 @@ def get_output_name(folder_name):
     final_name = f"{folder_name}\\music{i}.mid"
     return final_name
 
-def training_pipeline(device, path, epochs=50, load_model="", composer=""):
+def training_or_loading(device, path, epochs=50, load_model="", composer="", sequence_length = 100):
     # Load notes
     notes = get_notes(path)
     n_vocab = len(set(notes))
-
-    sequence_length = 100
     network_input, network_output, note_to_int, int_to_note = prepare_sequences(notes, n_vocab, sequence_length)
 
     # Create dataset and dataloader
@@ -187,37 +189,57 @@ def training_pipeline(device, path, epochs=50, load_model="", composer=""):
 
     return model, notes, note_to_int, int_to_note
 
-def music_generation(model, device, notes, note_to_int, int_to_note, number_files=1, sequence_length=100, generate_length=100):
+def music_generation(model, device, notes, note_to_int, int_to_note, number_files=1, sequence_length=100, generate_length=100, composer=""):
 
     for i in range(number_files):
         # Generate music
         generated_music = generate_music(model, device, notes, note_to_int, int_to_note, sequence_length, generate_length)
 
+        # remove all files in the folder
+        for file in os.listdir(".\\static\\generated\\midi"):
+            if file.endswith('.mid'):
+                os.remove(os.path.join(".\\static\\generated\\midi", file))
+
         # Save generated music to MIDI file
-        output_name = get_output_name("generated_music\\"+ composer)
+        output_name = get_output_name(".\\static\\generated\\midi\\"+ composer)
         save_generated_music_to_midi(generated_music, output_name)
 
-def generate_mp3_music():
+def midi_to_wav(midi_path, wav_path):
+    pygame.midi.init()
+    player = pygame.midi.Output(0)
+    midi = pygame.midi.Input(pygame.midi.get_default_input_id())
 
-    
+    # Utilise timidity pour convertir MIDI → WAV
+    os.system(f"timidity {midi_path} -Ow -o {wav_path}")
 
+def wav_to_mp3(wav_path, mp3_path):
+    audio = AudioSegment.from_wav(wav_path)
+    audio.export(mp3_path, format="mp3")
 
-if __name__ == '__main__':
+def convert_midi_to_mp3(midi_path, mp3_path):
+    temp_wav = "temp_output.wav"
+    midi_to_wav(midi_path, temp_wav)
+    wav_to_mp3(temp_wav, mp3_path)
+    os.remove(temp_wav)
+
+def generate_mp3_music(composer = "beeth", generate_length=100):
     if SOURCE != "":
         extract_sub_folders(SOURCE, PATH)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    for composer in COMPOSER:
-        if composer == "all" or composer == "All":
-            path = PATH
-        else :
-            path = ".\\raw_datasets\\" + composer
+    path = SOURCE + composer
 
-        load_model = "models\\beeth\\epoch_51.pt" # "" if you want to train the model
-        #load_model = ""
+    load_model = ".\\static\\models\\" + composer + "\\epoch_51.pt" # "" if you want to train the model
+    #load_model = ""
 
-        model, notes, note_to_int, int_to_note = training_pipeline(device, path, epochs=50, load_model=load_model, composer=composer)
+    model, notes, note_to_int, int_to_note = training_or_loading(device, path, epochs=50, load_model=load_model, composer=composer)
 
-        music_generation(model, device, notes, note_to_int, int_to_note, number_files=1, generate_length=100)
+    music_generation(model, device, notes, note_to_int, int_to_note, number_files=1, generate_length=generate_length, composer=composer)
+
+    # Exemple d'utilisation :
+    convert_midi_to_mp3(".\\static\\generated\\midi\\"+ composer + "music1.mid", ".\\static\\generated\\mp3\\result.mp3")
+
+if __name__ == '__main__':
+    generate_mp3_music("debussy", generate_length=100) 
