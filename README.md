@@ -47,7 +47,7 @@ https://github.com/user-attachments/assets/c5d615d5-7a28-4e68-b76e-74008f6e5d1d
 ### Setup the environment from mid to mp3
 
 - Download **FluidSynth** : https://github.com/FluidSynth/fluidsynth/releases
-- Add the path to the **FluidSynth** executable to your system's PATH environment variable. This will allow you to run FluidSynth commands from the command line. Example: `C:\Users\vigou\Documents\GitHub\Music_generation_LSTM\app\static\FluidSynth\fluidsynth-2.4.4-win10-x64\bin;`
+- Add the path to the **FluidSynth** executable to your system's PATH environment variable. This will allow you to run FluidSynth commands from the command line. Example: `C:\Users\username\Documents\GitHub\Music_generation_LSTM\app\static\FluidSynth\fluidsynth-2.4.4-win10-x64\bin;`
 - Download **SDL3.dll**
 - Put the **SDL3.dll** file in the same directory as the **FluidSynth** executable so the **bin** folder of **FluidSynth**.
 - Download **ffmpeg** : https://www.ffmpeg.org/
@@ -79,7 +79,7 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 - Modify in **LSTM_Pytorch.py** file to fit your needs:
 ```python
-absolute_fluidsynth_path = r"C:\Users\vigou\Documents\GitHub\Music_generation_LSTM\app\static\FluidSynth\fluidsynth-2.4.4-win10-x64\bin"  # To CHANGE
+absolute_fluidsynth_path = r"C:\Users\username\Documents\GitHub\Music_generation_LSTM\app\static\FluidSynth\fluidsynth-2.4.4-win10-x64\bin"  # To CHANGE
 absolute_ffmpeg_path = r"C:\ffmpeg" # To CHANGE
 ```
 
