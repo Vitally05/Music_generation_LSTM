@@ -1,13 +1,9 @@
 from flask import Flask, render_template, request, send_from_directory, redirect, url_for
-from LSTM_Pytorch import generate_music, save_generated_music_to_midi
 import subprocess
 import os
-from LSTM_Pytorch import generate_mp3_music
+from inference import generate_mp3_music
 
 app = Flask(__name__)
-
-OUTPUT_FOLDER = "static/generated"
-OUTPUT_FILE = "result.mp3"
 
 @app.route('/')
 def index():

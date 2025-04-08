@@ -18,6 +18,16 @@ Si vous avez des sous-dossiers, il faut renseigner le chemin dans SOURCE qui va 
 
 Il y aura ensuite un entrainement du modèle pour chaque compositeur dans COMPOSER. Si vous voulez un modèle qui peut générer de la musique de tous les compositeurs, mettre "all" dans COMPOSER.
 
+## UI
+
+The UI is built with Flask to create an easy-to-use web application with a python backend. 
+![alt text](docs/images/image.png)
+
+## Demo
+
+Mp4 video of the app in action: 
+[](docs/videos/demo.mp4)
+
 ## Requirements
 
 ### Download the dataset

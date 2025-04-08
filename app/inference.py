@@ -1,11 +1,15 @@
-import numpy as np
 import os
+import time
+
+import numpy as np
 import torch
 import torch.nn as nn
-from music21 import converter, instrument, note, chord
 from torch.utils.data import Dataset, DataLoader
+from music21 import converter, instrument, note, chord
+
 from data_preparation import extract_sub_folders, get_notes, prepare_sequences
 from utils import convert_midi_to_mp3
+
 
 class MusicLSTM(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_layers=2, dropout=0.2):
@@ -199,38 +203,58 @@ def vider_dossier(dossier):
             os.remove(chemin_complet)
 
 def generate_mp3_music(composer = "beeth", generate_length=100):
+
+    ############### PATHS ###############
+
+    raw_dataset_path = ".\\static\\raw_datasets\\"
+    dataset_path = ".\\static\\datasets\\classical_music"
+    path = raw_dataset_path + composer
+    load_model = ".\\static\\models\\" + composer + "\\epoch_51.pt"
+    midi_file = ".\\static\\generated\\music1.mid"
+
+    # Can be changed to any soundfont file
+    soundfont_path = "./static/sound_fonts/FluidR3_GM.sf2"
+
+    # MUST BE CHANGED
+    absolute_fluidsynth_path = r"C:\Users\USER\Documents\GitHub\Music_generation_LSTM\app\static\FluidSynth\fluidsynth-2.4.4-win10-x64\bin"  # CHANGE
+    # MUST BE CHANGED
+    absolute_ffmpeg_path = r"C:\ffmpeg" 
+
+
     # Generate dataset frolder from the raw dataset folder
-    if SOURCE != "":
-        extract_sub_folders(SOURCE, PATH)
+    if raw_dataset_path != "":
+        extract_sub_folders(raw_dataset_path, dataset_path)
 
     # clear generated folder
     vider_dossier("static/generated")
+    print("Generated folder cleared.")
 
     # Check if GPU is available and set device accordingly
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    ############### PATHS ###############
-
-    path = SOURCE + composer
-
-    load_model = ".\\static\\models\\" + composer + "\\epoch_51.pt" # "" if you want to train the model
-    #load_model = ""
-
+    # Load model
+    print("Loading model...")
     model, notes, note_to_int, int_to_note = training_or_loading(device, path, epochs=50, load_model=load_model, composer=composer)
+    print("Model loaded.")
 
+    # Generate music
+    print("Generating music...")
+    start_time = time.time()
     music_generation(model, device, notes, note_to_int, int_to_note, number_files=1, generate_length=generate_length, composer=composer)
+    end_time = time.time()
+    print(f"Music generated in {end_time - start_time:.2f} seconds.")
+    print("Music generation complete.")
 
-    midi_file = ".\\static\\generated\\music1.mid" # CHANGE
-    soundfont_path = "./static/sound_fonts/FluidR3_GM.sf2"  # piano
-    absolute_fluidsynth_path = r"C:\Users\vigou\Documents\GitHub\Music_generation_LSTM\app\static\FluidSynth\fluidsynth-2.4.4-win10-x64\bin"  # CHANGE
-    absolute_ffmpeg_path = r"C:\ffmpeg" 
-
+    # Convert generated MIDI file to MP3
+    print("Converting MIDI to MP3...")
     convert_midi_to_mp3(midi_file,
                         soundfont_path=soundfont_path,
                         absolute_fluidsynth_path=absolute_fluidsynth_path,
                         absolute_ffmpeg_path=absolute_ffmpeg_path,
                         mp3_file_path=None)
+    print("Conversion complete.")
+    print("Generated MP3 file saved.")
 
 if __name__ == '__main__':
     generate_mp3_music("debussy", generate_length=100) 

@@ -1,4 +1,5 @@
 import os
+
 from midi2audio import FluidSynth
 from pydub import AudioSegment
 
@@ -41,7 +42,7 @@ def convert_midi_to_mp3(midi_file_path,
     AudioSegment.ffprobe = os.path.join(absolute_ffmpeg_path, "ffprobe.exe")  # same for ffprobe
 
     os.environ["PATH"] += os.pathsep + absolute_fluidsynth_path  # path for fluidsynth bin folder
-    print("PATH:", os.environ["PATH"])
+    # print("PATH:", os.environ["PATH"])
 
     if not os.path.isfile(midi_file_path):  # check if the MIDI file exists
         raise FileNotFoundError(f"the MIDI file '{midi_file_path}' does not exist")
