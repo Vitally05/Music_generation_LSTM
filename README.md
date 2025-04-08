@@ -26,7 +26,8 @@ The UI is built with Flask to create an easy-to-use web application with a pytho
 ## Demo
 
 Mp4 video of the app in action: 
-[](docs/videos/demo.mp4)
+
+https://github.com/user-attachments/assets/c5d615d5-7a28-4e68-b76e-74008f6e5d1d
 
 ## Requirements
 
