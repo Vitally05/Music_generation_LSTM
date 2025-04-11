@@ -1,36 +1,187 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-    text-align: center;
-    padding: 30px;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+* {
+    box-sizing: border-box;
 }
 
-h1 {
-    color: #333;
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(-45deg, #e3f2fd, #e0f7fa, #fce4ec, #f3e5f5);
+    background-size: 400% 400%;
+    animation: gradientAnimation 15s ease infinite;
+    margin: 0;
+    padding: 1rem;
+    text-align: center;
+    color: #2c3e50;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+h1, .page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a2b50;
+    margin-bottom: 1.5rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+}
+
+.page-title {
+    font-size: 2.4rem;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex: 1;
 }
 
 form {
-    display: inline-block;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background-color: white;
+    padding: 2rem 2.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 0.625rem 1.5rem rgba(0, 0, 0, 0.1);
+    text-align: left;
+    margin-bottom: 0;
+    width: 100%;
+    max-width: 25rem;
 }
 
-label, input, select {
+label {
+    font-weight: 600;
+    margin-top: 1rem;
     display: block;
-    margin: 10px 0;
-    font-size: 16px;
+}
+
+input, select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.3rem;
+    margin-bottom: 1rem;
+    border-radius: 0.3rem;
+    border: 1px solid #ccc;
+    font-size: 1rem;
 }
 
 input[type="submit"] {
     background-color: #007bff;
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.4rem;
     cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
 }
+
 input[type="submit"]:hover {
     background-color: #0056b3;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1;
+}
+
+.audio-container {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 2.5rem;
+    border-radius: 0.8rem;
+    box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.1);
+    margin: auto;
+    width: 100%;
+    max-width: 25rem;
+}
+
+audio {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+#status-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.generation-success {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0.5rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+a {
+    display: inline-block;
+    margin-top: 0.5rem;
+    text-decoration: none;
+    color: #007bff;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.download-btn {
+    display: inline-block;
+    background-color: #28a745;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.4rem;
+    margin-top: 0.75rem;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.download-btn:hover {
+    background-color: #218838;
+}
+
+#loader {
+    justify-content: center;
+    align-items: center;
+    gap: 0.6rem;
+    display: flex;
+    margin-top: 15px;
+}
+
+.inline-spinner {
+    border: 0.25rem solid #f3f3f3;
+    border-top: 0.25rem solid #007bff;
+    border-radius: 50%;
+    width: 1.4rem;
+    height: 1.4rem;
+    animation: spin 1s linear infinite;
+    margin: auto;
+}
+
+footer.credits {
+    margin-top: 40px;
+    font-size: 0.9rem;
+    color: #555;
+    opacity: 0.6;
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }

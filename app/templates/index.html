@@ -5,28 +5,68 @@
     <title>Générateur de Musique</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
+
 <body>
-    <h1>Choisis ton artiste</h1>
-    <form action="/generate" method="post">
-        <label for="artist">Artiste :</label>
-        <select name="artist" id="artist">
-            <option value="beeth">Beeth</option>
-            <option value="albeniz">Albeniz</option>
-            <option value="debussy">Debussy</option>
-        </select><br>
+    <h1 class="page-title">🎼 Génère ta propre musique</h1>
+    <div class="main-container">
 
-        <label for="duration">Durée (en nombre de notes) :</label>
-        <input type="number" id="duration" name="duration" min="5" max="300" required><br>
+        
+        <form action="/generate" method="post">
+            <label for="artist">Artiste :</label>
+            
+            <select name="artist" id="artist" required>
+                <option value="" disabled selected>Choisissez un artiste</option>
+                <option value="beeth">Beeth</option>
+                <option value="albeniz">Albeniz</option>
+                <option value="debussy">Debussy</option>
+            </select>
+            <br>
 
-        <input type="submit" value="Générer">
-    </form>
+            <label for="duration">Durée (en nombre de notes) :</label>
+            <input type="number" id="duration" name="duration" min="5" max="300" value="5" required>
 
-    <h2>Voici ta génération :</h2>
-    <audio controls>
-        <source src="{{ url_for('static', filename='generated/music1.mp3') }}" type="audio/mpeg">
-        Ton navigateur ne supporte pas l'audio HTML.
-    </audio>
-    <br><br>
-    <a href="{{ url_for('static', filename='generated/music1.mp3') }}" download>Télécharger le fichier MP3</a>
+            <input type="submit" value="Générer">
+
+            <div id="loader" style="display: none; margin-top: 15px;">
+                <div class="inline-spinner"></div>
+                <span style="font-size: 16px; color: #555;">Génération en cours...</span>
+            </div>
+
+        </form>
+
+        {% if just_generated %}
+            <div id="result-area" class="audio-container">
+        {% else %}
+            <div id="result-area" class="audio-container" style="display: none;">
+        {% endif %}
+            <div id="status-message">
+        {% if just_generated %}
+            <h2 class="generation-success">🎶 Musique générée avec succès !</h2>
+        {% else %}
+            <div class="inline-spinner"></div>
+            <p style="margin-top: 10px;">Génération en cours...</p>
+        {% endif %}
+            </div>
+        
+        {% if just_generated %}
+            <audio controls style="margin-top: 20px;">
+                <source src="{{ url_for('static', filename='generated/music1.mp3') }}?v={{ cache_buster }}" type="audio/mpeg">
+                Ton navigateur ne supporte pas l'audio HTML.
+            </audio>
+            <a class="download-btn" href="{{ url_for('static', filename='generated/music1.mp3') }}" download>
+                Télécharger le fichier MP3
+            </a>
+        {% endif %}
+        </div>
+    </div>
+
+    <footer class="credits">
+        Réalisé par Elise ALBRECHT, Maxime BELLENGER, Antoine LE BOULCH & Victor GOUDAL
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    
 </body>
 </html>
