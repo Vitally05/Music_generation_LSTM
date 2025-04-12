@@ -38,14 +38,24 @@ def get_notes(midi_folder_path, unique=False):
         midi = converter.parse(str(file))  # music21 expects a str for the path
         notes_to_parse = midi.flat.notes
 
+        # documentation : https://www.music21.org/music21docs/moduleReference/moduleDuration.html
+
         for element in notes_to_parse:
             duration = element.duration.quarterLength
-            if duration < 0.75:
-                duration_class = 'short'
-            elif duration < 1.5:
-                duration_class = 'medium'
+            if abs(duration - 0.125) < 0.05:
+                duration_class = 'tripleCroche'
+            elif abs(duration - 0.25) < 0.05:
+                duration_class = 'doubleCroche'
+            elif abs(duration - 0.5) < 0.05:
+                duration_class = 'croche'
+            elif abs(duration - 1.0) < 0.1:
+                duration_class = 'noire'
+            elif abs(duration - 1.5) < 0.1:
+                duration_class = 'noirePointee'
+            elif abs(duration - 2.0) < 0.2:
+                duration_class = 'blanche'
             else:
-                duration_class = 'long'
+                duration_class = 'ronde'  # 4.0
 
             if isinstance(element, note.Note): # if single note
                 note_str = f"{element.pitch}_{duration_class}"
