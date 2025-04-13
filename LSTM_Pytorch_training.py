@@ -8,7 +8,7 @@ from data_preparation import extract_sub_folders, get_notes, prepare_sequences
 
 SOURCE = ".\\raw_datasets\\"            # https://www.kaggle.com/datasets/soumikrakshit/classical-music-midi
 PATH = ".\\datasets\\classical_music"   # No sub folder in this folder, all MIDI files are in the same folder
-COMPOSER = ["beeth"] # ["all"] if you want to train the model on all composers
+COMPOSER = ["beeth", "chopin", "mozart"] # ["all"] if you want to train the model on all composers
 
 class MusicLSTM(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_layers=2, dropout=0.2):
@@ -118,12 +118,21 @@ def save_generated_music_to_midi(generated_notes, output_file='generated_music.m
                 c = chord.Chord(chord_notes)
 
                 # Set duration based on suffix
-                if '_short' in note_str:
-                    c.duration.quarterLength = 0.4
-                elif '_medium' in note_str:
-                    c.duration.quarterLength = 0.8
-                else:
-                    c.duration.quarterLength = 0.8
+                if '_tripleCroche' in note_str:
+                    c.duration.quarterLength = 0.125
+                elif '_doubleCroche' in note_str:
+                    c.duration.quarterLength = 0.25
+                elif '_croche' in note_str:
+                    c.duration.quarterLength = 0.5
+                elif '_noire' in note_str:
+                    c.duration.quarterLength = 1.0
+                elif '_noirePointee' in note_str:
+                    c.duration.quarterLength = 1.5
+                elif '_blanche' in note_str:
+                    c.duration.quarterLength = 2.0
+                elif '_ronde' in note_str:
+                    c.duration.quarterLength = 4.0
+
 
                 stream.append(c)
             else:  # It's a single note
@@ -134,12 +143,20 @@ def save_generated_music_to_midi(generated_notes, output_file='generated_music.m
                     n = note.Note(pitch)
 
                 # Set duration based on suffix
-                if '_short' in note_str:
-                    n.duration.quarterLength = 0.4
-                elif '_medium' in note_str:
-                    n.duration.quarterLength = 0.8
-                else:
-                    n.duration.quarterLength = 0.8
+                if '_tripleCroche' in note_str:
+                    n.duration.quarterLength = 0.125
+                elif '_doubleCroche' in note_str:
+                    n.duration.quarterLength = 0.25
+                elif '_croche' in note_str:
+                    n.duration.quarterLength = 0.5
+                elif '_noire' in note_str:
+                    n.duration.quarterLength = 1.0
+                elif '_noirePointee' in note_str:
+                    n.duration.quarterLength = 1.5
+                elif '_blanche' in note_str:
+                    n.duration.quarterLength = 2.0
+                elif '_ronde' in note_str:
+                    n.duration.quarterLength = 4.0
 
                 stream.append(n)
         except Exception as e:
@@ -197,10 +214,6 @@ def music_generation(model, device, notes, note_to_int, int_to_note, number_file
         output_name = get_output_name("generated_music\\"+ composer)
         save_generated_music_to_midi(generated_music, output_name)
 
-def generate_mp3_music():
-
-    
-
 
 if __name__ == '__main__':
     if SOURCE != "":
@@ -215,9 +228,9 @@ if __name__ == '__main__':
         else :
             path = ".\\raw_datasets\\" + composer
 
-        load_model = "models\\beeth\\epoch_51.pt" # "" if you want to train the model
-        #load_model = ""
+        #load_model = "models\\beeth\\epoch_51.pt" # "" if you want to train the model
+        load_model = ""
 
-        model, notes, note_to_int, int_to_note = training_pipeline(device, path, epochs=50, load_model=load_model, composer=composer)
+        model, notes, note_to_int, int_to_note = training_pipeline(device, path, epochs=100, load_model=load_model, composer=composer)
 
         music_generation(model, device, notes, note_to_int, int_to_note, number_files=1, generate_length=100)

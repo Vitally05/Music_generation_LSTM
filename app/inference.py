@@ -79,8 +79,8 @@ def generate_music(model, device, notes, note_to_int, int_to_note, sequence_leng
     model.eval()
 
     # Initial sequence is picked at random point in the notes
-    #start_index = np.random.randint(0, len(notes) - sequence_length)
-    start_index = 0
+    start_index = np.random.randint(0, len(notes) - sequence_length)
+    #start_index = 0
     pattern = notes[start_index:start_index + sequence_length]
 
     # It's the beggining of our generated music
@@ -119,12 +119,21 @@ def save_generated_music_to_midi(generated_notes, output_file='generated_music.m
                 c = chord.Chord(chord_notes)
 
                 # Set duration based on suffix
-                if '_short' in note_str:
-                    c.duration.quarterLength = 0.4
-                elif '_medium' in note_str:
-                    c.duration.quarterLength = 0.8
-                else:
-                    c.duration.quarterLength = 0.8
+                if '_tripleCroche' in note_str:
+                    c.duration.quarterLength = 0.125
+                elif '_doubleCroche' in note_str:
+                    c.duration.quarterLength = 0.25
+                elif '_croche' in note_str:
+                    c.duration.quarterLength = 0.5
+                elif '_noire' in note_str:
+                    c.duration.quarterLength = 1.0
+                elif '_noirePointee' in note_str:
+                    c.duration.quarterLength = 1.5
+                elif '_blanche' in note_str:
+                    c.duration.quarterLength = 2.0
+                elif '_ronde' in note_str:
+                    c.duration.quarterLength = 4.0
+
 
                 stream.append(c)
             else:  # It's a single note
@@ -135,12 +144,20 @@ def save_generated_music_to_midi(generated_notes, output_file='generated_music.m
                     n = note.Note(pitch)
 
                 # Set duration based on suffix
-                if '_short' in note_str:
-                    n.duration.quarterLength = 0.4
-                elif '_medium' in note_str:
-                    n.duration.quarterLength = 0.8
-                else:
-                    n.duration.quarterLength = 0.8
+                if '_tripleCroche' in note_str:
+                    n.duration.quarterLength = 0.125
+                elif '_doubleCroche' in note_str:
+                    n.duration.quarterLength = 0.25
+                elif '_croche' in note_str:
+                    n.duration.quarterLength = 0.5
+                elif '_noire' in note_str:
+                    n.duration.quarterLength = 1.0
+                elif '_noirePointee' in note_str:
+                    n.duration.quarterLength = 1.5
+                elif '_blanche' in note_str:
+                    n.duration.quarterLength = 2.0
+                elif '_ronde' in note_str:
+                    n.duration.quarterLength = 4.0
 
                 stream.append(n)
         except Exception as e:
