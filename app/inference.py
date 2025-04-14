@@ -120,20 +120,19 @@ def save_generated_music_to_midi(generated_notes, output_file='generated_music.m
 
                 # Set duration based on suffix
                 if '_tripleCroche' in note_str:
-                    c.duration.quarterLength = 0.125
+                    c.duration.quarterLength = 0.0625
                 elif '_doubleCroche' in note_str:
-                    c.duration.quarterLength = 0.25
+                    c.duration.quarterLength = 0.125
                 elif '_croche' in note_str:
-                    c.duration.quarterLength = 0.5
+                    c.duration.quarterLength = 0.25
                 elif '_noire' in note_str:
-                    c.duration.quarterLength = 1.0
+                    c.duration.quarterLength = 0.5
                 elif '_noirePointee' in note_str:
-                    c.duration.quarterLength = 1.5
+                    c.duration.quarterLength = 0.75
                 elif '_blanche' in note_str:
-                    c.duration.quarterLength = 2.0
+                    c.duration.quarterLength = 1.0
                 elif '_ronde' in note_str:
-                    c.duration.quarterLength = 4.0
-
+                    c.duration.quarterLength = 2.0
 
                 stream.append(c)
             else:  # It's a single note
@@ -145,19 +144,19 @@ def save_generated_music_to_midi(generated_notes, output_file='generated_music.m
 
                 # Set duration based on suffix
                 if '_tripleCroche' in note_str:
-                    n.duration.quarterLength = 0.125
+                    n.duration.quarterLength = 0.0625
                 elif '_doubleCroche' in note_str:
-                    n.duration.quarterLength = 0.25
+                    n.duration.quarterLength = 0.125
                 elif '_croche' in note_str:
-                    n.duration.quarterLength = 0.5
+                    n.duration.quarterLength = 0.25
                 elif '_noire' in note_str:
-                    n.duration.quarterLength = 1.0
+                    n.duration.quarterLength = 0.5
                 elif '_noirePointee' in note_str:
-                    n.duration.quarterLength = 1.5
+                    n.duration.quarterLength = 0.75
                 elif '_blanche' in note_str:
-                    n.duration.quarterLength = 2.0
+                    n.duration.quarterLength = 1.0
                 elif '_ronde' in note_str:
-                    n.duration.quarterLength = 4.0
+                    n.duration.quarterLength = 2.0
 
                 stream.append(n)
         except Exception as e:
@@ -178,10 +177,11 @@ def get_output_name(folder_name):
     final_name = f"{folder_name}\\music{i}.mid"
     return final_name
 
-def training_or_loading(device, path, epochs=50, load_model="", composer="", sequence_length = 100):
+def training_or_loading(device, path, epochs=50, load_model="", composer="", sequence_length = 25):
     # Load notes
     notes = get_notes(path)
     n_vocab = len(set(notes))
+
     network_input, network_output, note_to_int, int_to_note = prepare_sequences(notes, n_vocab, sequence_length)
 
     # Create dataset and dataloader
@@ -219,23 +219,23 @@ def vider_dossier(dossier):
         if os.path.isfile(chemin_complet):
             os.remove(chemin_complet)
 
-def generate_mp3_music(composer = "beeth", generate_length=100):
+def generate_mp3_music(composer, generate_length=100):
 
     ############### PATHS ###############
 
     raw_dataset_path = ".\\static\\raw_datasets\\"
     dataset_path = ".\\static\\datasets\\classical_music"
     path = raw_dataset_path + composer
-    load_model = ".\\static\\models\\" + composer + "\\epoch_51.pt"
+    load_model = ".\\static\\models\\" + composer + "\\epoch_101.pt"
     midi_file = ".\\static\\generated\\music1.mid"
 
     # Can be changed to any soundfont file
     soundfont_path = "./static/sound_fonts/FluidR3_GM.sf2"
 
     # MUST BE CHANGED
-    absolute_fluidsynth_path = r"C:\Users\USER\Documents\GitHub\Music_generation_LSTM\app\static\FluidSynth\fluidsynth-2.4.4-win10-x64\bin"  # CHANGE
+    absolute_fluidsynth_path = r"C:\Users\elise\Documents\GitHub\Music_generation_LSTM\app\static\FluidSynth\fluidsynth-2.4.4-win10-x64\bin"  # CHANGE
     # MUST BE CHANGED
-    absolute_ffmpeg_path = r"C:\ffmpeg" 
+    absolute_ffmpeg_path = r"C:\ffmpeg\bin"
 
 
     # Generate dataset frolder from the raw dataset folder
@@ -252,7 +252,7 @@ def generate_mp3_music(composer = "beeth", generate_length=100):
 
     # Load model
     print("Loading model...")
-    model, notes, note_to_int, int_to_note = training_or_loading(device, path, epochs=50, load_model=load_model, composer=composer)
+    model, notes, note_to_int, int_to_note = training_or_loading(device, path, epochs=100, load_model=load_model, composer=composer)
     print("Model loaded.")
 
     # Generate music
@@ -274,4 +274,4 @@ def generate_mp3_music(composer = "beeth", generate_length=100):
     print("Generated MP3 file saved.")
 
 if __name__ == '__main__':
-    generate_mp3_music("debussy", generate_length=100) 
+    generate_mp3_music("beeth", generate_length=100)

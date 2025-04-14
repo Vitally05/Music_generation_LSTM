@@ -5,10 +5,11 @@ import torch.nn as nn
 from music21 import converter, instrument, note, chord
 from torch.utils.data import Dataset, DataLoader
 from data_preparation import extract_sub_folders, get_notes, prepare_sequences
+import pickle
 
 SOURCE = ".\\raw_datasets\\"            # https://www.kaggle.com/datasets/soumikrakshit/classical-music-midi
 PATH = ".\\datasets\\classical_music"   # No sub folder in this folder, all MIDI files are in the same folder
-COMPOSER = ["beeth", "chopin", "mozart"] # ["all"] if you want to train the model on all composers
+COMPOSER = ["beeth"] # ["all"] if you want to train the model on all composers
 
 class MusicLSTM(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_layers=2, dropout=0.2):
@@ -78,8 +79,8 @@ def generate_music(model, device, notes, note_to_int, int_to_note, sequence_leng
     model.eval()
 
     # Initial sequence is picked at random point in the notes
-    #start_index = np.random.randint(0, len(notes) - sequence_length)
-    start_index = 0
+    start_index = np.random.randint(0, len(notes) - sequence_length)
+    #start_index = 0
     pattern = notes[start_index:start_index + sequence_length]
 
     # It's the beggining of our generated music
@@ -119,19 +120,19 @@ def save_generated_music_to_midi(generated_notes, output_file='generated_music.m
 
                 # Set duration based on suffix
                 if '_tripleCroche' in note_str:
-                    c.duration.quarterLength = 0.125
+                    c.duration.quarterLength = 0.0625
                 elif '_doubleCroche' in note_str:
-                    c.duration.quarterLength = 0.25
+                    c.duration.quarterLength = 0.125
                 elif '_croche' in note_str:
-                    c.duration.quarterLength = 0.5
+                    c.duration.quarterLength = 0.25
                 elif '_noire' in note_str:
-                    c.duration.quarterLength = 1.0
+                    c.duration.quarterLength = 0.5
                 elif '_noirePointee' in note_str:
-                    c.duration.quarterLength = 1.5
+                    c.duration.quarterLength = 0.75
                 elif '_blanche' in note_str:
-                    c.duration.quarterLength = 2.0
+                    c.duration.quarterLength = 1.0
                 elif '_ronde' in note_str:
-                    c.duration.quarterLength = 4.0
+                    c.duration.quarterLength = 2.0
 
 
                 stream.append(c)
@@ -144,19 +145,20 @@ def save_generated_music_to_midi(generated_notes, output_file='generated_music.m
 
                 # Set duration based on suffix
                 if '_tripleCroche' in note_str:
-                    n.duration.quarterLength = 0.125
+                    n.duration.quarterLength = 0.0625
                 elif '_doubleCroche' in note_str:
-                    n.duration.quarterLength = 0.25
+                    n.duration.quarterLength = 0.125
                 elif '_croche' in note_str:
-                    n.duration.quarterLength = 0.5
+                    n.duration.quarterLength = 0.25
                 elif '_noire' in note_str:
-                    n.duration.quarterLength = 1.0
+                    n.duration.quarterLength = 0.5
                 elif '_noirePointee' in note_str:
-                    n.duration.quarterLength = 1.5
+                    n.duration.quarterLength = 0.75
                 elif '_blanche' in note_str:
-                    n.duration.quarterLength = 2.0
+                    n.duration.quarterLength = 1.0
                 elif '_ronde' in note_str:
-                    n.duration.quarterLength = 4.0
+                    n.duration.quarterLength = 2.0
+
 
                 stream.append(n)
         except Exception as e:
@@ -194,10 +196,14 @@ def training_pipeline(device, path, epochs=50, load_model="", composer=""):
     hidden_size = 256
     output_size = n_vocab
 
+    print(f"Notes : {len(notes)}, Vocabulary size : {n_vocab}")
+
     # Initialize model
     model = MusicLSTM(input_size, hidden_size, output_size).to(device)
 
     if load_model == "":
+        with open(f"models\\{composer}\\note_mappings.pkl", "wb") as f:
+            pickle.dump(n_vocab, f)
         train_music_model(model, dataloader, epochs=epochs, device=device, composer=composer)
     else :
         model.load_state_dict(torch.load(load_model, map_location=device))
@@ -226,11 +232,11 @@ if __name__ == '__main__':
         if composer == "all" or composer == "All":
             path = PATH
         else :
-            path = ".\\raw_datasets\\" + composer
+            path = "raw_datasets/" + composer
 
-        #load_model = "models\\beeth\\epoch_51.pt" # "" if you want to train the model
+        #load_model = "app/static/models/"+ composer +"/epoch_101.pt" # "" if you want to train the model
         load_model = ""
 
-        model, notes, note_to_int, int_to_note = training_pipeline(device, path, epochs=100, load_model=load_model, composer=composer)
+        model, notes, note_to_int, int_to_note = training_pipeline(device, path, epochs=10, load_model=load_model, composer=composer)
 
         music_generation(model, device, notes, note_to_int, int_to_note, number_files=1, generate_length=100)
