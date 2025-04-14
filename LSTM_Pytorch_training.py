@@ -5,7 +5,6 @@ import torch.nn as nn
 from music21 import converter, instrument, note, chord
 from torch.utils.data import Dataset, DataLoader
 from data_preparation import extract_sub_folders, get_notes, prepare_sequences
-import pickle
 
 SOURCE = ".\\raw_datasets\\"            # https://www.kaggle.com/datasets/soumikrakshit/classical-music-midi
 PATH = ".\\datasets\\classical_music"   # No sub folder in this folder, all MIDI files are in the same folder
@@ -202,8 +201,6 @@ def training_pipeline(device, path, epochs=50, load_model="", composer=""):
     model = MusicLSTM(input_size, hidden_size, output_size).to(device)
 
     if load_model == "":
-        with open(f"models\\{composer}\\note_mappings.pkl", "wb") as f:
-            pickle.dump(n_vocab, f)
         train_music_model(model, dataloader, epochs=epochs, device=device, composer=composer)
     else :
         model.load_state_dict(torch.load(load_model, map_location=device))
@@ -237,6 +234,6 @@ if __name__ == '__main__':
         #load_model = "app/static/models/"+ composer +"/epoch_101.pt" # "" if you want to train the model
         load_model = ""
 
-        model, notes, note_to_int, int_to_note = training_pipeline(device, path, epochs=10, load_model=load_model, composer=composer)
+        model, notes, note_to_int, int_to_note = training_pipeline(device, path, epochs=100, load_model=load_model, composer=composer)
 
         music_generation(model, device, notes, note_to_int, int_to_note, number_files=1, generate_length=100)

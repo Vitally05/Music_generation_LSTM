@@ -177,7 +177,7 @@ def get_output_name(folder_name):
     final_name = f"{folder_name}\\music{i}.mid"
     return final_name
 
-def training_or_loading(device, path, epochs=50, load_model="", composer="", sequence_length = 25):
+def training_or_loading(device, path, epochs=50, load_model="", composer="", sequence_length = 100):
     # Load notes
     notes = get_notes(path)
     n_vocab = len(set(notes))
