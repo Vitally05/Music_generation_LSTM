@@ -21,7 +21,8 @@ Il y aura ensuite un entrainement du modèle pour chaque compositeur dans COMPOS
 ## UI
 
 The UI is built with Flask to create an easy-to-use web application with a python backend. 
-![alt text](docs/images/image.png)
+![image](https://github.com/user-attachments/assets/78919191-6118-45f7-800c-81a084d8a365)
+
 
 ## Demo
 
