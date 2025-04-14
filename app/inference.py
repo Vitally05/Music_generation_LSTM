@@ -120,19 +120,19 @@ def save_generated_music_to_midi(generated_notes, output_file='generated_music.m
 
                 # Set duration based on suffix
                 if '_tripleCroche' in note_str:
-                    c.duration.quarterLength = 0.0625
-                elif '_doubleCroche' in note_str:
                     c.duration.quarterLength = 0.125
-                elif '_croche' in note_str:
+                elif '_doubleCroche' in note_str:
                     c.duration.quarterLength = 0.25
-                elif '_noire' in note_str:
+                elif '_croche' in note_str:
                     c.duration.quarterLength = 0.5
-                elif '_noirePointee' in note_str:
-                    c.duration.quarterLength = 0.75
-                elif '_blanche' in note_str:
+                elif '_noire' in note_str:
                     c.duration.quarterLength = 1.0
-                elif '_ronde' in note_str:
+                elif '_noirePointee' in note_str:
+                    c.duration.quarterLength = 1.5
+                elif '_blanche' in note_str:
                     c.duration.quarterLength = 2.0
+                elif '_ronde' in note_str:
+                    c.duration.quarterLength = 4.0
 
                 stream.append(c)
             else:  # It's a single note
@@ -144,19 +144,19 @@ def save_generated_music_to_midi(generated_notes, output_file='generated_music.m
 
                 # Set duration based on suffix
                 if '_tripleCroche' in note_str:
-                    n.duration.quarterLength = 0.0625
-                elif '_doubleCroche' in note_str:
                     n.duration.quarterLength = 0.125
-                elif '_croche' in note_str:
+                elif '_doubleCroche' in note_str:
                     n.duration.quarterLength = 0.25
-                elif '_noire' in note_str:
+                elif '_croche' in note_str:
                     n.duration.quarterLength = 0.5
-                elif '_noirePointee' in note_str:
-                    n.duration.quarterLength = 0.75
-                elif '_blanche' in note_str:
+                elif '_noire' in note_str:
                     n.duration.quarterLength = 1.0
-                elif '_ronde' in note_str:
+                elif '_noirePointee' in note_str:
+                    n.duration.quarterLength = 1.5
+                elif '_blanche' in note_str:
                     n.duration.quarterLength = 2.0
+                elif '_ronde' in note_str:
+                    n.duration.quarterLength = 4.0
 
                 stream.append(n)
         except Exception as e:
