@@ -232,10 +232,11 @@ def generate_mp3_music(composer, generate_length=100):
     # Can be changed to any soundfont file
     soundfont_path = "./static/sound_fonts/FluidR3_GM.sf2"
 
+    current_path = os.path.dirname(os.path.abspath(__file__))
     # MUST BE CHANGED
-    absolute_fluidsynth_path = r"C:\Users\elise\Documents\GitHub\Music_generation_LSTM\app\static\FluidSynth\fluidsynth-2.4.4-win10-x64\bin"  # CHANGE
+    absolute_fluidsynth_path = current_path + r"\app\static\FluidSynth\fluidsynth-2.4.4-win10-x64\bin"  # CHANGE
     # MUST BE CHANGED
-    absolute_ffmpeg_path = r"C:\ffmpeg\bin"
+    absolute_ffmpeg_path = r"C:\ffmpeg"
 
 
     # Generate dataset frolder from the raw dataset folder
